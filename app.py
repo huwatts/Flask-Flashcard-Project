@@ -62,7 +62,7 @@ def index():
 @app.route('/add_card', methods=['GET', 'POST'])
 def add_card():
 
-    # render web page from GET request:
+    # 'GET' request - render webpage:
     if request.method == "GET":
         if "user_id" in session:
             user_id = session["user_id"]
@@ -75,11 +75,11 @@ def add_card():
         else:
             return redirect("/login")
 
-    # add new cards to db via 'POST' request: 
+    # 'POST' request - process queries to modify the database: 
     else:
         # assign data from JSON (and flask session):
-        data = request.get_json()
         user_id = session["user_id"]
+        data = request.get_json()
         typed = data['typed']
         select = data['select']
         question = data['question']
@@ -171,10 +171,10 @@ def add_card():
 @app.route('/flash_c', methods=['GET', 'POST'])
 def flash_c():
 
-    # a function which converts SQLAlchemy query into an array of dictionaries
-    # where each dictionary represents a flashcard
+    # This function converts the output of an SQLAlchemy query (an array of tuples) into an array of
+    # dictionaries where each dictionary represents a flashcard.
     def make_list_of_cards(query):
-        keys = ["question", "answer", "id"]
+        keys = ["question", "answer", "id", "category", "important"]
         card_list = []
         for card in query:
             temp_card = {}
@@ -183,44 +183,29 @@ def flash_c():
             card_list.append(temp_card)
         return card_list
 
-    # a function which makes card queries and returns a list of dictionaries
-    # i.e. returns a card_list
-    def card_query(user_id, category, important):
-        # when a user requests all categories (usually initial page load)
-        if category == 'all':
-            query = SQLsession.query(cards.question, cards.answer, cards.id).filter(cards.user_id == user_id, cards.important == important).all()
-            return make_list_of_cards(query)
-        else:
-            query = SQLsession.query(cards.question, cards.answer, cards.id).filter(cards.category == category, cards.user_id == user_id, cards.important == important).all()
-            return make_list_of_cards(query)
-
     # Handle Ajax requests once the page has loaded:
     if request.method == "POST":
         # raw data received from the AJAX request:
         data = request.get_json()
-        
         category = data['category']
-        important = data['important']
         del_id = data['delete']
         imp_id = data['imp_id']
-        # find user from flask session:
+        # find user_id from flask session:
         user_id =session["user_id"]
         # The following processes the initial page load request:
         if category == "all" and del_id == "." and imp_id == ".":
-            return card_query(user_id, category, important)
-        # the following processes a change of category:
-        elif del_id == "." and imp_id == ".":
-            return card_query(user_id, category, important)
+            query = SQLsession.query(cards.question, cards.answer, cards.id, cards.category, cards.important).filter(cards.user_id == user_id).all()
+            return make_list_of_cards(query)
         # the following processes a card deletion request:
         elif del_id != ".":
             stmt = f"DELETE FROM cards WHERE cards.id = {del_id} AND cards.user_id = {user_id}"
             engine.execute(stmt)
             # re-render a new list of cards:
-            return card_query(user_id, category, important)
+            return {"success": True}
         # The following processes a request to mark a card as (un)important:
         else:
             # check if the card is already marked as important:
-            count = SQLsession.query(cards.id).filter(cards.id == imp_id, important == 1).count()
+            count = SQLsession.query(cards.id).filter(cards.id == imp_id, cards.important == 1).count()
             if count == 0:
                 # mark the card as important:
                 stmt = f"UPDATE cards SET important = 1 WHERE cards.id = {imp_id} AND cards.user_id = {user_id}"
@@ -229,7 +214,7 @@ def flash_c():
                 # mark the card as unimportant:
                 stmt = f"UPDATE cards SET important = 0 WHERE cards.id = {imp_id} AND cards.user_id = {user_id}"
                 engine.execute(stmt)
-            return card_query(user_id, category, important)
+            return {"success": True}
     
     else:               # 'GET'
         if "user_id" in session:
