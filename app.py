@@ -1,12 +1,9 @@
-from flask import Flask, request, render_template, jsonify, url_for, redirect, session
+from flask import Flask, request, render_template, redirect, session
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine, Column, String, Integer, Integer, text, func, insert, delete
+from sqlalchemy import create_engine, Column, String, Integer, Integer, insert
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
-from operator import itemgetter
-import json
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import timedelta
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///flashcards.db"
