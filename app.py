@@ -1,11 +1,9 @@
-from flask import Flask, request, render_template, jsonify, url_for, redirect, session
+from flask import Flask, request, render_template, redirect, session
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine, Column, String, Integer, Integer, text, func, insert, delete
+from sqlalchemy import create_engine, Column, String, Integer, Integer, insert
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
-from operator import itemgetter
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import timedelta
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///flashcards.db"
@@ -334,7 +332,6 @@ def register():
             # find user_id
             query = SQLsession.query(users.user_id, users.username, users.h_password).filter(users.username == username).all()
             user_list = make_user_list(query)
-            user_id = user_list[0]['user_id']
             # redirect to login page
             return redirect("/login")
     else:   # if "GET":
