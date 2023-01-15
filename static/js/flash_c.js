@@ -1,8 +1,11 @@
 $(function() {
     const flash_class = $('.flash_card');
+    const front_class = $('.face--front');
+    const back_class = $('.face--back');
+    const face_class = $('.face');
 
     // an array to keep track of flipped cards:
-    const flipped = [];
+    let flipped = [];
 
     // cards_to_render stores the list of cards to be rendered on the page
     let cards_to_render = [];
@@ -40,19 +43,9 @@ $(function() {
     flash_class.each(function(i) {
         $(this).on('click', function() {
             if (flipped[i]) {
-                $(this).html(cards_to_render[i].question);
-                $(this).css("background-color","#7494b8");
                 flipped[i] = false;
-                $('.flash_card').css('border-style', 'none');
-                $(this).css('border-style', 'solid');
-                selected = $(this);
             } else {
-                $(this).html(cards_to_render[i].answer);
-                $(this).css("background-color",'#aaa986');
                 flipped[i] = true;
-                $('.flash_card').css('border-style', 'none');
-                $(this).css('border-style', 'solid');
-                selected = $(this);
             }
         })
     })
@@ -61,15 +54,6 @@ $(function() {
     let clicked_id
     // cards_to_render[i] of clicked card:
     let i_clicked
-    // event listeners to allow cards to be deleted
-    // or marked as important:
-    for (let i = 0; i < flash_class.length; i++) {
-        let div = $(`#flash-${i}`);
-        div.on('click', function(event) {
-            clicked_id = cards_to_render[i].id;
-            i_clicked = i;
-        });
-      }
 
     let turn_off_animations = false
     // add event listener to the delete button
@@ -109,7 +93,7 @@ $(function() {
             cards_to_render.splice(i_clicked, 1);
             // render modifications for user:
             turn_off_animations = true;
-            render_cards()
+            render_cards();
             // inform back-end of modifications:
             entry = {
                 "category": $('select[name="category"]').val(),
@@ -118,6 +102,8 @@ $(function() {
             }
             // update_needed = false:
             fetch_request(entry, false);
+        } else {
+            console.log("no clicked id found");
         }
     });
 
@@ -140,10 +126,22 @@ $(function() {
             } else {
                 response.json().then(function (data) {
                     if (update_needed) {
+                        // update all_cards with the most recent clone from server-side
                         all_cards = data;
-                        cards_to_render = all_cards;
-                        console.log(cards_to_render);
-                        render_cards();
+                        // update flipped array to be up to date with all_cards
+                        flipped = []
+                        for (let i = 0; i < all_cards.length; i++) {
+                            flipped.push(false)
+                        }
+                        // create event listeners, now that the number of flashcards is known:
+                        flash_class.each(function(i){
+                            $(this).on('click', function() {
+                                clicked_id = cards_to_render[i].id;
+                                i_clicked = i;
+                            });
+                        });
+                        // console.log(cards_to_render);
+                        filter_cards();
                     } else if (data.success != true) {
                         console.log("Back-end failed to update modifications")
                     };
@@ -173,20 +171,16 @@ $(function() {
     }
 
     function render_cards() {
-        // reset flips to track background color:
-        for (let i = 0; i < cards_to_render.length; i++) {
-            flipped.push(false);
-            }
         // hide and show entire flash card according to number of entries available:
         if (turn_off_animations) {
             // skip the animations if it is a delete request
             flash_class.each(function(i) {
                 // if card exists:
                 if (cards_to_render[i]){
-                    $(this).show();
+                    $(this).show(0);
                 // else hide the element:
                 } else {
-                    $(this).hide();
+                    $(this).hide(0);
                 }
                 // turn animations back on for next time:
                 turn_off_animations = false
@@ -196,21 +190,37 @@ $(function() {
             flash_class.each(function(i) {
                 // if card exists:
                 if (cards_to_render[i]){
-                    $(this).show(200);
+                    $(this).show(0);
                 // else hide the element:
                 } else {
-                    $(this).hide(200);
+                    $(this).hide(0);
                 }
         })};
-        // reset the flipped array:
-        flipped.fill(false);
-        // fill flash_class with new cards:
+        // reset each card to show questions and no answers:
+        // flip cards if they are showing answers:
         flash_class.each(function(i) {
+            if (flipped[i]){
+                this.classList.toggle('flipped');
+                flipped[i] = false;
+            }
+        });
+        // fill front_class with new questions:
+        front_class.each(function(i) {
             if (cards_to_render[i]){
                 $(this).html(cards_to_render[i].question);
-                $(this).css("background-color","#7494b8");
+            }
+        });
+        // fill back_class with answers and allow them to be seen again:
+        back_class.each(function(i) {
+            if (cards_to_render[i]){
+                $(this).html(cards_to_render[i].answer)
             }
         });
 }
 
+    flash_class.each(function(i){
+        $(this).on('click', function() {
+            this.classList.toggle('flipped');
+    });
+  });
 });

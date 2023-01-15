@@ -43,8 +43,14 @@ Flashcards App
       <div class="spacer_flash_card">
       </div>
       {% for i in range(length) %}
-        <div class="flash_card" id="flash-{{i}}">
+
+      <div class="flash_card" id="flash-{{i}}">
+        <div class="face face--front" id="front-{{i}}">
         </div>
+        <div class="face face--back" id="back-{{i}}">
+        </div>
+      </div>
+
       {% endfor %}
   </div>
 {% endblock %}
