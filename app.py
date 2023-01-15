@@ -4,7 +4,6 @@ from sqlalchemy import create_engine, Column, String, Integer, Integer, text, fu
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 from operator import itemgetter
-import json
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import timedelta
 
