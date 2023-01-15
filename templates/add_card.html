@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Flashcards App
+{% endblock %}
+{% block head_js %}
+<script src="/static/js/add_card.js"></script>
+{% endblock %}
+{% block main %}
+    <br>
+    <div class="container">
+      <form class="form">
+        <div class="panel panel-primary">
+          <div class="panel-heading"><h4> Add a new flashcard by filling in the form below</h4></div>
+          <div class="panel-body">You may add a new category if you choose <strong>"Type a new category..."</strong> from the dropdown menu.</div>
+        </div>    
+
+            <label for="category-select" class="form-label">
+                Choose a pre-existing category:
+            </label>
+              <select id="category-select" class="form-control">
+                <option value="all">
+                  Choose a category...
+                </option>
+                <option value="typed">
+                  Type a new category below...
+                </option>
+                {% for row in categories %}
+                <option>
+                  {{row[0]}}
+                </option>
+                {% endfor %}
+            </select>
+            <span>
+                <input id="category_typed" type="text" class="form-control">
+            </span>
+        <h4>
+            Add question:
+        </h4>
+        <textarea id="question" rows="4" cols="64" class="form-control"></textarea>
+        <h4>Add answer:</h4>
+        <textarea id="answer" rows="4" cols="64" class="form-control"></textarea>
+        <br>
+        <button id="link" class="btn btn-success" onclick="location.href='/flash_c'" type = "button"> View flashcards</button>
+        {% if starter %}
+            <button id="starter" class="btn btn-danger" onclick="location.href='/add_card'" type = "button">Add some starter cards for inspiration</button>
+        {% endif %}
+        <button id="submit" class="btn btn-primary" style="float: right">Submit</button>
+        <button id="logout" class="btn" onclick="location.href='/logout'" type = "button">Logout</button>
+        <div id="messages">
+          <p id="message" style="color: #770d0d"></p>
+        </div> 
+    </form>
+    </div>
+{% endblock %}

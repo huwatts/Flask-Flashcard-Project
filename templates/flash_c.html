@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Flashcards App
+{% endblock %}
+{% block head_js %}
+<script src="/static/js/flash_c.js"></script>
+{% endblock %}
+{% block main %}
+  <div class="grid">
+    <div class="nav-panel">
+      <button id="link" class="btn btn-success" onclick="location.href='/add_card'" type = "button"> Add new cards</button>
+      <button id="delete_card" type="button" class="btn btn-danger">Delete a card</button>
+      <button id="imp" type="button" class="btn btn-warning">Toggle Priority</button>
+      <br>
+      <br>
+      <br>
+      <label for="category-select">
+        Choose a category:
+      </label>
+      <select name="category">
+        <option value="all">
+          All categories...
+        </option>
+        {% for row in categories %}
+        <option>
+          {{row[0]}}
+        </option>
+        {% endfor %}
+      </select>
+      <br>
+      <br>
+      <br>
+      Toggle view between high and low <strong>priority:</strong>
+      <span>    </span>
+      <label class="switch">
+        <input type="checkbox" id="slider">
+        <span class="slider round"></span>
+      </label>
+    </div>
+      {% for i in range(length) %}
+        <div class="flash_card" id="flash-{{i}}">
+        </div>
+      {% endfor %}
+  </div>
+{% endblock %}
