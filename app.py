@@ -335,7 +335,6 @@ def register():
             # find user_id
             query = SQLsession.query(users.user_id, users.username, users.h_password).filter(users.username == username).all()
             user_list = make_user_list(query)
-            user_id = user_list[0]['user_id']
             # redirect to login page
             return redirect("/login")
     else:   # if "GET":
