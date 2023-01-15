@@ -1,19 +1,18 @@
-
-#### Quick demo guide:
+# Quick demo guide:
 - start a codespace from the repo (it will automatically have python)
 - run the pip install commands in the virtual environment (see "dependencies")
 - register an account (does not require any personal details or email address)
 - click the red button to "add a starter deck" when you arrive on the "add_card" page
 - play around with the functionality of the main flash card page and add card page
 
-#### Dependencies:
+## Dependencies:
 Python 3.11 (included in codespace)
 flask (requires "pip install flask")
 flask_sqlalchemy (requires "pip install flask_sqlalchemy")
 
 Other dependencies for this project do not require install. They include jQuery 3.6.0, bootstrap 3.4.1 and a modified version of a toggle switch taken from: [w3schools](https://www.w3schools.com/howto/howto_css_switch.asp).
 
-#### Description:
+## Description:
 
 This project is a web application which allows users to create unique accounts, from which they can create, categorise and delete flashcards. The project makes use of flask and javascripts "fetch" api to keep the project as fast and lightweight as possible.
 
