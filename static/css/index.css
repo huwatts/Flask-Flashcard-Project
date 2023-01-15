@@ -26,6 +26,15 @@ body {
     cursor: pointer;
 }
 
+.spacer_flash_card {
+  border-style: none;
+  border-radius: 10px;
+  margin: 9px;
+  padding: 10px;
+  height: 180px;
+  width: 210px;
+  border-width: 0.35em;
+}
 
 .back {
     display: none;
@@ -42,8 +51,11 @@ body {
     border-radius: 10px;
     margin: 5px;
     padding: 10px;
-    height: 190px;
-    width: 450px;
+    height: 184px;
+    width: 444px;
+    top: 0;
+    left: 0;
+    position: fixed;
 }
 
 .nav-panel:hover {
