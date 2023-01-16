@@ -2,7 +2,6 @@ $(function() {
     const flash_class = $('.flash_card');
     const front_class = $('.face--front');
     const back_class = $('.face--back');
-    const face_class = $('.face');
 
     // an array to keep track of flipped cards:
     let flipped = [];
@@ -77,14 +76,18 @@ $(function() {
     });
 
     // add event listener to the "Toggle priority" button
-    // and request an update to the local cards as well as the
-    // server-side database
+    // This includes:
+    // - an update to the local card dictionaries
+    // - an update to the database on the server
     $("#imp").on('click', function(event) {
         event.preventDefault();
         if (clicked_id) {
             // modify local copies of cards:
+
+            // find the index of the clicked card wrt the "all_cards" array: 
             const hasCorrectId = (element) => element.id == clicked_id;
             let index = all_cards.findIndex(hasCorrectId);
+            // change the dictionary at the index to have the importance toggled:
             if (all_cards[index].important == 0) {
                 all_cards[index].important = 1;
             } else {
@@ -109,7 +112,7 @@ $(function() {
     });
 
     function fetch_request(entry, update_needed=true) {
-        // send the ajax request:
+        // send the request to the backend:
         fetch(`${window.origin}/flash_c`, {
             method: "POST",
             credentials: "include",
@@ -134,7 +137,7 @@ $(function() {
                         for (let i = 0; i < all_cards.length; i++) {
                             flipped.push(false)
                         }
-                        // create event listeners, now that the number of flashcards is known:
+                        // create event listeners, now that the number of flashcard elements is known:
                         flash_class.each(function(i){
                             $(this).on('click', function() {
                                 clicked_id = cards_to_render[i].id;
@@ -190,7 +193,6 @@ $(function() {
         render_class(back_class, animation_time);
     }  
 
-
     function render_class(div_class, animation_time) {
         div_class.each(function(i) {
             // if card exists:
@@ -202,6 +204,8 @@ $(function() {
             }
     });
     }
+    // apply the 'flipped' class to each flashcard upon click.
+    // the 'flipped' class applies the flip along the y axis for the respective css card.
     flash_class.each(function(i){
         $(this).on('click', function() {
             this.classList.toggle('flipped');
