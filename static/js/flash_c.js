@@ -29,17 +29,16 @@ $(function() {
         } else {
             important = 0;
         };
-        filter_cards();
+        filter_cards(200);
         });
  
     // Event listener for change of category:
     $('select[name="category"]').on('change', function() {
         category = $(this).val();
-        // exception for when "all" cards requested:
-        filter_cards();
+        filter_cards(200);
     });
 
-    // event listeners for flash card flip:
+    // event listeners for 'flipped' array:
     flash_class.each(function(i) {
         $(this).on('click', function() {
             if (flipped[i]) {
@@ -65,7 +64,7 @@ $(function() {
             cards_to_render.splice(i_clicked, 1);
             // render modifications for user:
             turn_off_animations = true;
-            render_cards()
+            render_cards(0)
             // inform back-end of modifications:
             entry = {
                 "category": $('select[name="category"]').val(),
@@ -78,6 +77,8 @@ $(function() {
     });
 
     // add event listener to the "Toggle priority" button
+    // and request an update to the local cards as well as the
+    // server-side database
     $("#imp").on('click', function(event) {
         event.preventDefault();
         if (clicked_id) {
@@ -93,7 +94,7 @@ $(function() {
             cards_to_render.splice(i_clicked, 1);
             // render modifications for user:
             turn_off_animations = true;
-            render_cards();
+            render_cards(0);
             // inform back-end of modifications:
             entry = {
                 "category": $('select[name="category"]').val(),
@@ -141,7 +142,7 @@ $(function() {
                             });
                         });
                         // console.log(cards_to_render);
-                        filter_cards();
+                        filter_cards(300);
                     } else if (data.success != true) {
                         console.log("Back-end failed to update modifications")
                     };
@@ -151,7 +152,7 @@ $(function() {
     };
 
     // This function allows all_cards to be fitlered as per the user's request
-    function filter_cards() {
+    function filter_cards(animation_time=0) {
         // clear cards_to_render
         cards_to_render = []
         // use for loop to check category and append to updated filtered list "cards_to_render"
@@ -167,57 +168,40 @@ $(function() {
                 }
             }
         }
-        render_cards()        
+        render_cards(animation_time)        
     }
 
-    function render_cards() {
+    function render_cards(animation_time) {
         // hide and show entire flash card according to number of entries available:
-        if (turn_off_animations) {
-            // skip the animations if it is a delete request
-            flash_class.each(function(i) {
-                // if card exists:
-                if (cards_to_render[i]){
-                    $(this).show(0);
-                // else hide the element:
-                } else {
-                    $(this).hide(0);
-                }
-                // turn animations back on for next time:
-                turn_off_animations = false
-            })
-        } else {
-            // add animation if not a delete request
-            flash_class.each(function(i) {
-                // if card exists:
-                if (cards_to_render[i]){
-                    $(this).show(0);
-                // else hide the element:
-                } else {
-                    $(this).hide(0);
-                }
-        })};
-        // reset each card to show questions and no answers:
-        // flip cards if they are showing answers:
-        flash_class.each(function(i) {
-            if (flipped[i]){
-                this.classList.toggle('flipped');
-                flipped[i] = false;
-            }
-        });
         // fill front_class with new questions:
         front_class.each(function(i) {
             if (cards_to_render[i]){
                 $(this).html(cards_to_render[i].question);
             }
         });
-        // fill back_class with answers and allow them to be seen again:
+        // fill back_class with answers:
         back_class.each(function(i) {
             if (cards_to_render[i]){
                 $(this).html(cards_to_render[i].answer)
             }
         });
-}
+        render_class(flash_class, animation_time);
+        render_class(front_class, animation_time);
+        render_class(back_class, animation_time);
+    }  
 
+
+    function render_class(div_class, animation_time) {
+        div_class.each(function(i) {
+            // if card exists:
+            if (cards_to_render[i]){
+                $(this).show(animation_time);
+            // else hide the element:
+            } else {
+                $(this).hide(animation_time);
+            }
+    });
+    }
     flash_class.each(function(i){
         $(this).on('click', function() {
             this.classList.toggle('flipped');
