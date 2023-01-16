@@ -53,7 +53,6 @@ $(function() {
     // cards_to_render[i] of clicked card:
     let i_clicked
 
-    let turn_off_animations = false
     // add event listener to the delete button
     $("#delete_card").on('click', function(event) {
         event.preventDefault();
@@ -62,7 +61,6 @@ $(function() {
             all_cards.splice(i_clicked, 1);
             cards_to_render.splice(i_clicked, 1);
             // render modifications for user:
-            turn_off_animations = true;
             render_cards(0)
             // inform back-end of modifications:
             entry = {
@@ -95,8 +93,6 @@ $(function() {
             };
             // stop rendering the card with changed priority:
             cards_to_render.splice(i_clicked, 1);
-            // render modifications for user:
-            turn_off_animations = true;
             render_cards(0);
             // inform back-end of modifications:
             entry = {
@@ -177,6 +173,7 @@ $(function() {
     function render_cards(animation_time) {
         // hide and show entire flash card according to number of entries available:
         // fill front_class with new questions:
+        reset_flips();
         front_class.each(function(i) {
             if (cards_to_render[i]){
                 $(this).html(cards_to_render[i].question);
@@ -209,6 +206,15 @@ $(function() {
     flash_class.each(function(i){
         $(this).on('click', function() {
             this.classList.toggle('flipped');
+        });
     });
-  });
+
+    function reset_flips() {
+        flash_class.each(function(i){
+            if (flipped[i]) {
+                this.classList.toggle('flipped');
+            }
+        });
+        flipped.fill(false);
+    }
 });
