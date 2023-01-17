@@ -19,11 +19,11 @@ height: 180px;
 width: 210px;
 transition: 400ms;
 transform-style: preserve-3d;
-backface-visibility: hidden;
 margin: 9px;
 position: relative;
 border-bottom-color: rgb(112, 155, 13);
 border-bottom-width: 0.35em;
+z-index: 5;
 }
 
 .face:hover {
@@ -33,8 +33,9 @@ transition: 0.2;
 cursor: pointer;
 }
 
-.flipped {
+.flash_card.flipped {
 transform: rotateY(-180deg);
+-webkit-transform: rotateY(-180deg);
 }
 
 .face{
