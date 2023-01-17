@@ -95,8 +95,8 @@ $(function() {
 
     // add event listener to the "Toggle priority" button
     // This includes:
-    // - an update to the local card dictionaries
-    // - an update to the database on the server
+        // - an update to the local card dictionaries
+        // - an update to the database on the server
     $("#imp").on('click', function(event) {
         event.preventDefault();
         let selected = convert_flipped_array_to_ids();
@@ -232,16 +232,7 @@ $(function() {
         for (let i = 0; i < cards_to_render_length; i++) {
             flipped.push(false)
         }
-        /* create event listeners, now that the number of flashcard elements is known:
-        flash_class.each(function(i){
-            if (i < cards_to_render_length) {
-                $(this).on('click', function() {
-                    clicked_id = cards_to_render[i].id;
-                    i_clicked = i;
-                });
-            }
-            
-        });  */
+
     }
 
 
