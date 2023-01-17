@@ -6,7 +6,11 @@ $(function() {
 
     // an array to keep track of flipped cards:
     let flipped = [];
+    // an array to keep track of 
+        // - the sql database id
+        // - the indices of the flipped cards: all_cards[i]
 
+    
     // cards_to_render stores the list of cards to be rendered on the page
     let all_cards = [];
     let cards_to_render = [];
@@ -58,21 +62,35 @@ $(function() {
     // add event listener to the delete button
     $("#delete_card").on('click', function(event) {
         event.preventDefault();
-        if (clicked_id) {
-            // modify local copies of cards:
-            all_cards.splice(i_clicked, 1);
-            cards_to_render.splice(i_clicked, 1);
-            // render modifications for user:
-            render_cards(0)
+        // find the id of selected cards from the flipped array:
+        let selected = convert_flipped_array_to_ids();
+        let entry
+        let to_be_deleted = [];
+        // for each flipped flashcard, delete it:
+        for (let i = 0; i < selected.length; i++) {
+            // queue card for deletion:
+            to_be_deleted.push(selected[i][2])
+            
             // inform back-end of modifications:
             entry = {
                 "category": $('select[name="category"]').val(),
-                "delete": clicked_id,
+                "delete": selected[i][0],
                 "imp_id" : "."
             }
             // update_needed = false:
+            
             fetch_request(entry, false);
         }
+        // excute the queue of cards to be deleted:
+
+        // ensure that elements at greater indicies are deleted first:
+        to_be_deleted.sort(function(a,b){ return b - a; });
+        to_be_deleted.forEach(function(index) {
+            all_cards.splice(index, 1);
+        })
+        
+        // render modifications for user:
+        filter_cards(0);
     });
 
     // add event listener to the "Toggle priority" button
@@ -81,32 +99,29 @@ $(function() {
     // - an update to the database on the server
     $("#imp").on('click', function(event) {
         event.preventDefault();
-        if (clicked_id) {
+        let selected = convert_flipped_array_to_ids();
+        let entry
+
+            for (let i=0; i < selected.length; i++) {
             // modify local copies of cards:
 
-            // find the index of the clicked card wrt the "all_cards" array: 
-            const hasCorrectId = (element) => element.id == clicked_id;
-            let index = all_cards.findIndex(hasCorrectId);
             // change the dictionary at the index to have the importance toggled:
-            if (all_cards[index].important == 0) {
-                all_cards[index].important = 1;
+            if (all_cards[selected[i][2]].important == 0) {
+                all_cards[selected[i][2]].important = 1;
             } else {
-                all_cards[index].important = 0;
+                all_cards[selected[i][2]].important = 0;
             };
-            // stop rendering the card with changed priority:
-            cards_to_render.splice(i_clicked, 1);
-            render_cards(0);
             // inform back-end of modifications:
             entry = {
                 "category": $('select[name="category"]').val(),
                 "delete": ".",
-                "imp_id" : clicked_id
+                "imp_id" : selected[i][0]
             }
-            // update_needed = false:
-            fetch_request(entry, false);
-        } else {
-            console.log("no clicked id found");
         }
+        filter_cards(0);
+        // update_needed = false:
+        fetch_request(entry, false);
+            
     });
 
     function fetch_request(entry, update_needed=true) {
@@ -130,19 +145,7 @@ $(function() {
                     if (update_needed) {
                         // update all_cards with the most recent clone from server-side
                         all_cards = data;
-                        // update flipped array to be up to date with all_cards
-                        flipped = []
-                        for (let i = 0; i < all_cards.length; i++) {
-                            flipped.push(false)
-                        }
-                        // create event listeners, now that the number of flashcard elements is known:
-                        flash_class.each(function(i){
-                            $(this).on('click', function() {
-                                clicked_id = cards_to_render[i].id;
-                                i_clicked = i;
-                            });
-                        });
-                        // console.log(cards_to_render);
+                        // reset all data in the meta-data arrays:
                         filter_cards(300);
                     } else if (data.success != true) {
                         console.log("Back-end failed to update modifications")
@@ -173,9 +176,12 @@ $(function() {
     }
 
     function render_cards(animation_time) {
-        // hide and show entire flash card according to number of entries available:
-        // fill front_class with new questions:
+           
         reset_flips();
+
+        // console.log(cards_to_render);
+
+        // fill front_class with new questions:
         front_class.each(function(i) {
             if (cards_to_render[i]){
                 $(this).html(cards_to_render[i].question);
@@ -211,12 +217,50 @@ $(function() {
         });
     });
 
+     
     function reset_flips() {
+        // reset the css-flip styles
         flash_class.each(function(i){
             if (flipped[i]) {
                 this.classList.toggle('flipped');
             }
         });
-        flipped.fill(false);
+        // reset the flipped and selected arrays
+        flipped = [];
+        // assign variable to speed up both for loops 
+        let cards_to_render_length = cards_to_render.length
+        for (let i = 0; i < cards_to_render_length; i++) {
+            flipped.push(false)
+        }
+        /* create event listeners, now that the number of flashcard elements is known:
+        flash_class.each(function(i){
+            if (i < cards_to_render_length) {
+                $(this).on('click', function() {
+                    clicked_id = cards_to_render[i].id;
+                    i_clicked = i;
+                });
+            }
+            
+        });  */
     }
+
+
+    // This functions takes the flipped array.
+    // and returns the metadata about the flipped flashcards
+    // needed to execute deletion and priority change requests.
+    function convert_flipped_array_to_ids() {
+        let selected = [];
+        for (let i=0; i < cards_to_render.length; i++) {
+            if (flipped[i]) {
+                let sql_db_id = cards_to_render[i].id;
+                function hasCorrectId(element) {
+                    return element.id == sql_db_id;
+                }
+                let all_cards_index = all_cards.findIndex(hasCorrectId);
+                selected.push([sql_db_id, i, all_cards_index]);
+            }
+        }
+        return selected;
+    }
+
 });
