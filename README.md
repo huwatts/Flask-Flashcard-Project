@@ -9,12 +9,6 @@
 - Once logged in, click the red button to "add a starter deck" when you arrive on the "add_card" page
 - Play around with the functionality of the main flash card page and add card page
 
-## Dependencies:
-Python 3.11 (included in codespace)
-flask (requires "pip install flask")
-flask_sqlalchemy (requires "pip install flask_sqlalchemy")
-
-Other dependencies for this project do not require install. They include jQuery 3.6.0, bootstrap 3.4.1 and a modified version of a toggle switch taken from: [w3schools](https://www.w3schools.com/howto/howto_css_switch.asp).
 
 ## Description:
 
@@ -25,3 +19,10 @@ The main file "app.py" defines the behaviour for each route and webpage. All htm
 "/flash_c" (flash_c.html, flash_c.js, app.py, index.css) is the main webpage of the project, and utlises a significant proportion of the project's code. The HTML template renders dynamically, based on how many flashcards are in a users account. The Javascript code is responsible for filtering and re-rendering cards as they are manipulated by the user. Users can filter their cards based on subject category and/or priority simultaneously. Requests to delete and change the priority of specifc cards are handled by javascript's fetch api.
 
 "/add_card" (add_card.html, add_card.js, app.py, index.css) is a webpage which allows users to add cards to their account. This page also makes use of AJAX, allowing cards to be added quickly, while viewing a responsive log of what the back-end is doing. "starter_deck.py" holds an array of flashcards which can be easily added by new users.
+
+## Dependencies (all included in .devcontainer):
+Python 3.11 
+flask 
+flask_sqlalchemy 
+
+Other dependencies include: jQuery 3.6.0, bootstrap 3.4.1 and a modified version of a toggle switch taken from: [w3schools](https://www.w3schools.com/howto/howto_css_switch.asp).
