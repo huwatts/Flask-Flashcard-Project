@@ -1,9 +1,13 @@
 # Quick demo guide:
-- start a codespace from the repo (it will automatically have python)
-- run the pip install commands in the virtual environment (see "dependencies")
-- register an account (does not require any personal details or email address)
-- click the red button to "add a starter deck" when you arrive on the "add_card" page
-- play around with the functionality of the main flash card page and add card page
+- A pre-build exists with all dependencies needed for this project, so creating a bug-free codespace in the cloud is will take less than a minute:
+    - Sign into Github
+    - Click the green "code" button on the home page of this repo
+    - Click 'codespaces'
+    - Click the plus symbol to setup a new codespace. It will automatically be setup with the pre-build configuration I have created.
+- Once the code space has launched, run the command "flask run" in the terminal.
+- register an account within the web app once it has launched (This does not require any personal details or email address)
+- Once logged in, click the red button to "add a starter deck" when you arrive on the "add_card" page
+- Play around with the functionality of the main flash card page and add card page
 
 ## Dependencies:
 Python 3.11 (included in codespace)

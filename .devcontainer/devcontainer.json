@@ -6,7 +6,7 @@
 	"image": "mcr.microsoft.com/devcontainers/python:0-3.11",
 	"features": {
 		"ghcr.io/warrenbuckley/codespace-features/sqlite:1": {}
-	}
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
@@ -15,7 +15,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "pip3 install --user -r requirements.txt",
+	"postCreateCommand": "pip install flask==2.2.2 flask_sqlalchemy==3.0.2",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
