@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, redirect, session
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine, Column, String, Integer, Integer, insert
+from sqlalchemy import create_engine, Column, String, Integer, insert
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -18,6 +18,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 
 # establish connection to database
 engine = create_engine('sqlite:///flashcards.db', echo=True)
+connection = engine.connect()
 Base = declarative_base()
 
 # Declare class for use as ORM for table 'Users':
@@ -142,7 +143,7 @@ def add_card():
                 else:                                 
                     category=typed
                     stmt = insert(cards).values(user_id=user_id,  question=question, answer=answer, category=category, important=0)
-                    engine.execute(stmt)
+                    connection.execute(stmt)
                     return {
                         "message": 'You created a new category "{category}". You added a new card to this category.'.format(category=category),
                         "category": None
@@ -158,7 +159,7 @@ def add_card():
             elif category and question and answer:
                 # add the new card to the database
                 stmt = insert(cards).values(user_id=user_id, question=question, answer=answer, category=category, important=0)
-                engine.execute(stmt)
+                connection.execute(stmt)
                 return {
                     "category": category,
                     "message": None}
@@ -199,7 +200,7 @@ def flash_c():
         # the following processes a card deletion request:
         elif del_id != ".":
             stmt = f"DELETE FROM cards WHERE cards.id = {del_id} AND cards.user_id = {user_id}"
-            engine.execute(stmt)
+            connection.execute(stmt)
             # re-render a new list of cards:
             return {"success": True}
         # The following processes a request to mark a card as (un)important:
@@ -209,11 +210,11 @@ def flash_c():
             if count == 0:
                 # mark the card as important:
                 stmt = f"UPDATE cards SET important = 1 WHERE cards.id = {imp_id} AND cards.user_id = {user_id}"
-                engine.execute(stmt)
+                connection.execute(stmt)
             else:
                 # mark the card as unimportant:
                 stmt = f"UPDATE cards SET important = 0 WHERE cards.id = {imp_id} AND cards.user_id = {user_id}"
-                engine.execute(stmt)
+                connection.execute(stmt)
             return {"success": True}
     
     else:               # 'GET'
@@ -313,7 +314,7 @@ def register():
             hash = generate_password_hash(password)
             # insert into users table of database:
             stmt = insert(users).values(username=username, h_password=hash)
-            engine.execute(stmt)
+            connection.execute(stmt)
             # find user_id
             query = SQLsession.query(users.user_id, users.username, users.h_password).filter(users.username == username).all()
             user_list = make_user_list(query)
