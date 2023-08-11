@@ -291,35 +291,36 @@ def logout():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-
     if request.method == "POST":
-        # assign user's data to variables:
-        username = request.form.get("username")
-        password = request.form.get("password")
-        confirmation = request.form.get("confirmation")
-        
-        # check user data makes sense:
-        if not username or not password or not confirmation:
-            return render_template("register.html", message="User must submit a username, password and confirmation." )
-        elif password != confirmation:
-            return render_template("register.html", message="Passwords do not match." )
+        with SQLsession() as session_SQL:
+            # assign user's data to variables:
+            username = request.form.get("username")
+            password = request.form.get("password")
+            confirmation = request.form.get("confirmation")
+            
+            # check user data makes sense:
+            if not username or not password or not confirmation:
+                return render_template("register.html", message="User must submit a username, password and confirmation." )
+            elif password != confirmation:
+                return render_template("register.html", message="Passwords do not match." )
 
-        # check username does not already exist:
-        query = SQLsession.query(users.user_id, users.username, users.h_password).filter(users.username == username).all()
-        if len(query) > 0:
-            return render_template("register.html", message="Please pick a different username. This one has been taken.")
-        # All checks passed. Safe to register new account to the database:
-        else:
-            # hash the password:
-            hash = generate_password_hash(password)
-            # insert into users table of database:
-            stmt = insert(users).values(username=username, h_password=hash)
-            connection.execute(stmt)
-            # find user_id
+            # check username does not already exist:
             query = SQLsession.query(users.user_id, users.username, users.h_password).filter(users.username == username).all()
-            user_list = make_user_list(query)
-            # redirect to login page
-            return redirect("/login")
+            if len(query) > 0:
+                return render_template("register.html", message="Please pick a different username. This one has been taken.")
+            # All checks passed. Safe to register new account to the database:
+            else:
+                # hash the password:
+                hash = generate_password_hash(password)
+                # insert into users table of database:
+                stmt = insert(users).values(username=username, h_password=hash)
+                session_SQL.execute(stmt)
+                session_SQL.commit()
+                # find user_id
+                query = session_SQL.query(users.user_id, users.username, users.h_password).filter(users.username == username).all()
+                user_list = make_user_list(query)
+                # redirect to login page
+                return redirect("/login")
     else:   # if "GET":
         return render_template("register.html")
 
